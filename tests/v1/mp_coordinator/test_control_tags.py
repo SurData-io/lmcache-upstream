@@ -55,11 +55,11 @@ def _body(tags: Mapping[str, JsonValue]) -> dict[str, JsonValue]:
 
 def _store_key(tags: dict[str, str]) -> ObjectKey:
     """Use the server's store-side IPC expansion, independently of the resolver."""
-    ipc_key = IPCCacheServerKey(
+    ipc_key = IPCCacheServerKey.from_token_ids(
         model_name="m",
         world_size=1,
         worker_id=0,
-        token_ids=tuple(TOKENS),
+        token_ids=TOKENS,
         start=0,
         end=len(TOKENS),
         request_id="store",

@@ -126,6 +126,13 @@ The pre-commit config includes Rust hooks, so the run fails when `cargo`,
 building `io-uring`). For non-Rust changes, run
 `SKIP=rust-fmt,rust-clippy pre-commit run --all-files`.
 
+System-language hooks invoke `python3` from `PATH`, so activate the Python
+3.12+ validation environment before running pre-commit; macOS `/usr/bin/python3`
+may still be 3.9 and cannot execute the device-check hook. The mypy hook also
+requires a discoverable Python 3.12 interpreter. After a packed-token rebase,
+new IPC fixtures must use `IPCCacheServerKey.from_token_ids(...)` or explicitly
+pack `token_bytes`; replacing the removed `token_ids` field is invalid.
+
 C++/CUDA files use clang-format (Google style, 80-col). Rust code in `rust/` uses `cargo fmt` and `cargo clippy`.
 
 All Python files require an `# SPDX-License-Identifier: Apache-2.0` header as the first line.

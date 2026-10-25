@@ -16,6 +16,7 @@ from lmcache.v1.distributed.storage_controllers.store_controller import StoreLis
 from lmcache.v1.mp_coordinator.utils.encoding import decode_key, encode_key
 from lmcache.v1.multiprocess.custom_types import IPCCacheServerKey
 from lmcache.v1.multiprocess.session import Session
+from lmcache.v1.multiprocess.token_codec import pack_token_ids
 from lmcache.v1.multiprocess.token_hasher import TokenHasher
 from lmcache.v1.multiprocess.transport.grpc_impl._proto_gen import (
     common_pb2,
@@ -106,7 +107,7 @@ def test_identity_transport_and_object_expansion() -> None:
     )
     requests = [
         ipc,
-        replace(ipc, token_ids=(3, 4)),
+        replace(ipc, token_bytes=pack_token_ids([3, 4])),
         replace(ipc, start=1),
         replace(ipc, end=1),
     ]
