@@ -6,6 +6,15 @@ device or pre-sized file using the Rust raw-device I/O bindings. It reuses the
 existing raw-block metadata checkpoint model and writes directly into the
 caller-provided load buffers during prefetch.
 
+**Installation:** the Rust bindings ship as a separate wheel,
+``lmcache-rust-raw-block-io``, released at the same version as ``lmcache``.
+Install both together through the ``raw-block`` extra, which pins the matching
+version:
+
+.. code-block:: bash
+
+    pip install 'lmcache[raw-block]'
+
 **Required fields:**
 
 - ``device_path``: Raw device path or pre-sized file path.

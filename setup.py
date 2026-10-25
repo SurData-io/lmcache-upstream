@@ -10,6 +10,7 @@ zero changes to this file.
 from pathlib import Path
 from types import ModuleType
 import importlib.util
+import re
 import sys
 
 ROOT_DIR = Path(__file__).parent
@@ -21,9 +22,32 @@ if str(ROOT_DIR) not in sys.path:
 # Third Party
 from setuptools import find_packages, setup  # noqa: E402
 from setuptools.command.build_py import build_py as _build_py  # noqa: E402
+from setuptools_scm import Configuration, _get_version  # noqa: E402
 
 # First Party
 from setup_extensions import BuildPolicy, BuildProfile  # noqa: E402
+
+# Release versions get a raw-block Rust wheel on PyPI at the same version.
+_RELEASE_VERSION_RE = re.compile(r"\d+\.\d+\.\d+((a|b|rc)\d+)?")
+
+
+def _raw_block_requirement() -> str:
+    """Return the ``raw-block`` extra's requirement on the Rust wheel.
+
+    Releases publish ``lmcache-rust-raw-block-io`` at lmcache's version, so a
+    release build pins that exact version. Dev and nightly builds have no
+    matching wheel and leave it unpinned.
+
+    Returns:
+        str: Requirement string for ``lmcache-rust-raw-block-io``.
+    """
+    # Same resolution setuptools-scm uses for the package version, including
+    # SETUPTOOLS_SCM_PRETEND_VERSION and the sdist PKG-INFO fallback.
+    config = Configuration.from_file(str(ROOT_DIR / "pyproject.toml"))
+    version = _get_version(config, force_write_version_files=False)
+    if version is not None and _RELEASE_VERSION_RE.fullmatch(version):
+        return f"lmcache-rust-raw-block-io=={version}"
+    return "lmcache-rust-raw-block-io"
 
 
 def _read_requirements(path: Path) -> list[str]:
@@ -81,6 +105,7 @@ if __name__ == "__main__":
     # Platform-neutral extras; the build profile adds its own below.
     extras_require: dict[str, list[str]] = {
         "kafka": _read_requirements(ROOT_DIR / "requirements" / "kafka.txt"),
+        "raw-block": [_raw_block_requirement()],
     }
     if (
         not BuildProfile.is_gpu_ext_disabled()
