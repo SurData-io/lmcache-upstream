@@ -19,6 +19,8 @@ defaults:
 jobs:
   nightly:
     name: Build, push, and release nightly
+    # Forks such as SurData-io/lmcache-upstream do not carry Docker Hub creds.
+    if: vars.DOCKERHUB_USERNAME != ''
     runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner
