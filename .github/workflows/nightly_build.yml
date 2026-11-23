@@ -206,7 +206,7 @@ jobs:
 
   build-xpu-ci-candidate:
     name: Build XPU CI candidate
-    if: github.ref == 'refs/heads/dev'
+    if: github.ref == 'refs/heads/dev' && vars.DOCKERHUB_USERNAME != ''
     needs: resolve-xpu-nightly
     runs-on: ubuntu-24.04
     outputs:
@@ -566,6 +566,7 @@ jobs:
           docker run --rm --entrypoint lmcache lmcache/vllm-openai:nightly-${{ github.run_id }}-${{ matrix.arch }} --help
 
       - name: Push lmcache/vllm-openai container image to DockerHub
+        if: vars.DOCKERHUB_USERNAME != ''
         run: |
           docker push lmcache/vllm-openai:nightly-${{ github.run_id }}-${{ matrix.arch }}
 
@@ -588,6 +589,7 @@ jobs:
           test -f payload-out/lmcache/__init__.py
 
       - name: Push lmcache/lmcache-payload nightly image to DockerHub
+        if: vars.DOCKERHUB_USERNAME != ''
         run: |
           docker push lmcache/lmcache-payload:nightly-${{ github.run_id }}-${{ matrix.arch }}
 
@@ -610,6 +612,7 @@ jobs:
           docker run --rm --entrypoint lmcache lmcache/standalone:nightly-${{ github.run_id }}-${{ matrix.arch }} --help
 
       - name: Push lmcache/standalone container image to DockerHub
+        if: vars.DOCKERHUB_USERNAME != ''
         run: |
           docker push lmcache/standalone:nightly-${{ github.run_id }}-${{ matrix.arch }}
 
@@ -631,6 +634,7 @@ jobs:
           docker run --rm --entrypoint lmcache lmcache/vllm-openai:nightly-cu129-${{ github.run_id }}-${{ matrix.arch }} --help
 
       - name: Push lmcache/vllm-openai cu12.9 nightly image to DockerHub
+        if: vars.DOCKERHUB_USERNAME != ''
         run: |
           docker push lmcache/vllm-openai:nightly-cu129-${{ github.run_id }}-${{ matrix.arch }}
 
@@ -653,6 +657,7 @@ jobs:
           test -f payload-out-cu129/lmcache/__init__.py
 
       - name: Push lmcache/lmcache-payload cu12.9 nightly image to DockerHub
+        if: vars.DOCKERHUB_USERNAME != ''
         run: |
           docker push lmcache/lmcache-payload:nightly-cu129-${{ github.run_id }}-${{ matrix.arch }}
 
@@ -674,11 +679,13 @@ jobs:
           docker run --rm --entrypoint lmcache lmcache/standalone:nightly-cu129-${{ github.run_id }}-${{ matrix.arch }} --help
 
       - name: Push lmcache/standalone cu12.9 nightly image to DockerHub
+        if: vars.DOCKERHUB_USERNAME != ''
         run: |
           docker push lmcache/standalone:nightly-cu129-${{ github.run_id }}-${{ matrix.arch }}
 
   nightly-publish-manifests:
     name: Publish multi-arch image manifests
+    if: vars.DOCKERHUB_USERNAME != ''
     needs: nightly-build
     runs-on: ubuntu-24.04
     steps:
@@ -689,6 +696,7 @@ jobs:
           egress-policy: audit
 
       - name: Login to DockerHub
+        if: vars.DOCKERHUB_USERNAME != ''
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
@@ -756,6 +764,7 @@ jobs:
 
   nightly-verify-cpu-vllm:
     name: CPU device tests
+    if: github.repository_owner == 'LMCache'
     # Reuse the PR-gating CPU device suite (server bench + vLLM e2e over
     # two models) rather than keeping a second, weaker copy of the install
     # steps here: "today's nightly is importable" says very little, while
@@ -777,7 +786,7 @@ jobs:
   nightly-pin-or-report-vllm:
     name: Pin or report vLLM
     needs: nightly-verify-cpu-vllm
-    if: always()
+    if: always() && github.repository_owner == 'LMCache'
     concurrency:
       group: github-nightly-vllm-pin
       cancel-in-progress: false
