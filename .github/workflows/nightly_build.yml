@@ -497,6 +497,11 @@ jobs:
 
   nightly-build:
     name: Build image (${{ matrix.arch }})
+    # Forks without Docker Hub still spend an hour building images they
+    # cannot push, and a torch pin that is missing from the CUDA index
+    # fails the whole nightly mail. Skip the image jobs unless publish
+    # credentials exist.
+    if: vars.DOCKERHUB_USERNAME != ''
     strategy:
       fail-fast: false
       matrix:
