@@ -21,6 +21,8 @@ permissions:
 jobs:
   translate-docs:
     name: Update Chinese docs translations
+    # Same PR-creation restriction as sync_torch_version.yml.
+    if: github.repository_owner == 'LMCache'
     runs-on: ubuntu-24.04
     steps:
       - name: Harden Runner

@@ -16,6 +16,9 @@ concurrency:
 jobs:
   sync:
     name: Sync torch pin with vLLM
+    # Opens a pull request. Forks keep the default GITHUB_TOKEN restriction
+    # that forbids creating PRs, so the scheduled run fails in seconds.
+    if: github.repository_owner == 'LMCache'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
